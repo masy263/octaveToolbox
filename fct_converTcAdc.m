@@ -1,23 +1,36 @@
-function ret = fct_converTcAdc(fName)
+function ret = fct_converTcAdc(inpPath, outPath, idxStart, idxEnd)
 
-  close all;
+  ret = 0;
 
-  nOs = 15;
+  if inpPath(1,end) == '/'
+    inpPath = inpPath(1,1:end - 1);
+  end
 
-  data = fct_hexFile2uint(fName, 4)
-  data = [data(:,1) * 256 + data(:,2), data(:,3) * 256 + data(:,4)];
-  data = fct_complementOnTwo2int(data, 16);
-  plot(data(1:2000,1))
-  data = data(:,2) + data(:,1) * i;
+  if outPath(1,end) == '/'
+    outPath = outPath(1,1:end - 1);
+  end
 
-  ret = data;
+  it = idxStart - 1;
 
-  %it = 0;
+  while it < idxEnd
+    it = it + 1;
 
-  %while it < nOs
-  %  it = it + 1;
-  %  polyphase = data(it:nOs:end,:);
-  %  figure; plot(polyphase, '*');
-  %end
+    if it < 10
+      inpFile = [inpPath, '/tcInp.adc0', num2str(it)];
+      outFile = [outPath, '/tcOutAdc0',  num2str(it), '.cplx'];
+    else
+      inpFile = [inpPath, '/tcInp.adc',  num2str(it)];
+      outFile = [outPath, '/tcOutAdc',   num2str(it), '.cplx'];
+    end
+
+    tcData = fct_hexFile2uint(inpFile, 4);
+    tcData = [tcData(:,1) * 256 + tcData(:,2), tcData(:,3) * 256 + tcData(:,4)];
+    tcData = fct_complementOnTwo2int(tcData, 16);
+    tcData = tcData(:,2) + tcData(:,1) * i;
+
+    csvwrite(outFile, tcData);
+
+    ret = ret + 1;
+  end
 
 end

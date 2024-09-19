@@ -1,40 +1,28 @@
-function retvar = fct_parseSignal(fName, inpNos)
+function polyphase = fct_parseSignal(fName, inpNos)
 
   close all;
 
-  s = readlines(fName);
-  sig = [];
-
-  for it = 1:size(s,1)
-      try
-          stemp = s(it);
-          stemp = strsplit(stemp,',');
-          for it2 = 1:size(stemp,2)
-              ctemp = eval(stemp(it2));
-              sig = [sig, ctemp];
-          end
-      catch
-          break;
-      end
-  end
+  sig       = csvread(fName);
+  lSig      = length(sig(:,1));
+  lSig      = lSig - mod(lSig, inpNos);
+  sig       = sig(1:lSig,1);
+  polyphase = zeros(lSig / inpNos, inpNos);
+  bits      = polyphase;
 
   for it = 1:inpNos
-    polyphase = sig(it:inpNos:end);
+    polyphase(:,it)    = sig(it:inpNos:end,1);
+    bits(:,it * 2 - 1) = (imag(polyphase(:,it)) < 0);
+    bits(:,it * 2)     = (real(polyphase(:,it)) < 0);
 
-    csvwrite(['symPolyphase', num2str(it), '.csv'], polyphase');
+    if it < 10
+      outputFile = ['polyphase_0', num2str(it), '.bits'];
+    else
+      outputFile = ['polyphase_',  num2str(it), '.bits'];
+    end
 
-    bit1 = imag(polyphase) < 0;
-    bit0 = real(polyphase) < 0;
-
-    polyphase = zeros(1, length(bit0(1,:)) * 2);
-    polyphase(1, 1:2:end) = bit1;
-    polyphase(1, 2:2:end) = bit0;
-
-    csvwrite(['binSymPolyphase', num2str(it), '.csv'], [bit1;bit0]');
-    csvwrite(['bitPolyphase', num2str(it), '.csv'], polyphase');
-
+    csvwrite(outputFile, bits(:,it * 2 - 1:it * 2));
     figure;
-    plot(sig(it:inpNos:end),'bx');
+    plot(polyphase(:,it),'bx');
   end
 
   mypsd((sig), 1024, 13.5,1);
