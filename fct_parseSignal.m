@@ -1,30 +1,22 @@
-function polyphase = fct_parseSignal(fName, inpNos)
+function polyphase = fct_parseSignal(sig, inpNos, plotFlag)
 
-  close all;
-
-  sig       = csvread(fName);
-  lSig      = length(sig(:,1));
-  lSig      = lSig - mod(lSig, inpNos);
-  sig       = sig(1:lSig,1);
-  polyphase = zeros(lSig / inpNos, inpNos);
-  bits      = polyphase;
+  lSig       = length(sig(:,1));
+  lSig       = lSig - mod(lSig, inpNos);
+  sig        = sig(1:lSig,1);
+  polyphase  = zeros(lSig / inpNos, inpNos);
 
   for it = 1:inpNos
-    polyphase(:,it)    = sig(it:inpNos:end,1);
-    bits(:,it * 2 - 1) = (imag(polyphase(:,it)) < 0);
-    bits(:,it * 2)     = (real(polyphase(:,it)) < 0);
+    polyphase(:,it) = real(sig(it:inpNos:end,1)) + imag(sig(it:inpNos:end,1)) * i;
 
-    if it < 10
-      outputFile = ['polyphase_0', num2str(it), '.bits'];
-    else
-      outputFile = ['polyphase_',  num2str(it), '.bits'];
+    if plotFlag > 0
+      figure;
+      plot(polyphase(:,it),'bx');
     end
 
-    csvwrite(outputFile, bits(:,it * 2 - 1:it * 2));
-    figure;
-    plot(polyphase(:,it),'bx');
   end
 
-  mypsd((sig), 1024, 13.5,1);
+  if plotFlag > 0
+    fct_prmkPsd((sig), 1024, 13.5,1);
+  end
 
 end
