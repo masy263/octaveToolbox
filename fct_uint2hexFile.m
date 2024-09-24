@@ -43,9 +43,9 @@ function retvar = fct_uint2hexFile(inpVal, bitWidth, fName)
   jt = 1;
 
   while it < nClmns
-  retvar(:,it:it + lenLine - 1) = dec2hex(inpVal(:,jt), lenLine);
-  it = it + lenLine + 1;
-  jt = jt + 1;
+    retvar(:,it:it + lenLine - 1) = dec2hex(inpVal(:,jt), lenLine);
+    it = it + lenLine + 1;
+    jt = jt + 1;
   end
 
   retvar(:,end) = char(10);
@@ -54,5 +54,7 @@ function retvar = fct_uint2hexFile(inpVal, bitWidth, fName)
   fid = fopen(fName, "w");
   fprintf(fid, "%s", retvar);
   fclose(fid);
+
+  retvar = length(retvar(1,:));
 
 end
