@@ -11,9 +11,9 @@ bits           = fct_genBinCntValues(cntBitWidth);
 bits           = fct_flattenMatrix(bits)';
 symbols        = fct_genQpskSymbols(bits);
 sigBasebandRrc = fct_pulseShaping(symbols, nOs, rollOff, 0);
-sigBasebandRrc = round(fct_normMatrix(sigBasebandRrc) .* (2^sigBitWidth - 1));
+sigBasebandRrc = round(fct_normMatrix(sigBasebandRrc) .* (2^(sigBitWidth - 1) - 1));
 sigBasebandRc  = fct_pulseShaping(symbols, nOs, rollOff, 1);
-sigBasebandRc  = round(fct_normMatrix(sigBasebandRc) .* (2^sigBitWidth - 1));
+sigBasebandRc  = round(fct_normMatrix(sigBasebandRc) .* (2^(sigBitWidth - 1) - 1));
 
 outSigRrc = sigBasebandRrc;
 outSigRc  = sigBasebandRc;
