@@ -1,12 +1,13 @@
 icasDataPath         = '/home/markus/Arbeit/icasSignalUL/icasChipsUnshaped/';
+outPathHexFiles      = '/home/markus/Arbeit/2024-09-24_icasChipsHex/';
 chipsPilotAndPayload = 'chipsPilotAndPayload.csv';
 chipsSignaling       = 'chipsSignaling.csv';
 chipsComplete        = 'icasFullSampleVector.csv';
 chipsSyncPreamble    = 'preambleSync.csv';
 
 bitWidthPreamble         = 3;
-outFileChipsPreambleReal = 'chipsSyncPreambleReal.hex';
-outFileChipsPreambleImag = 'chipsSyncPreambleImag.hex';
+outFileChipsPreambleReal = [outPathHexFiles, 'chipsSyncPreambleReal.hex'];
+outFileChipsPreambleImag = [outPathHexFiles, 'chipsSyncPreambleImag.hex'];
 
 if min([fct_checkFileExistence(outFileChipsPreambleReal), fct_checkFileExistence(outFileChipsPreambleImag)]) < 0
   preamble = csvread([icasDataPath, chipsSyncPreamble]);
@@ -18,7 +19,7 @@ else
   fprintf("preamble files already exist.\n");
 end
 
-outFileChipsSignaling = 'chipsSignaling.hex';
+outFileChipsSignaling = [outPathHexFiles, 'chipsSignaling.hex'];
 
 if fct_checkFileExistence(outFileChipsSignaling) < 0
   signaling = csvread([icasDataPath, chipsSignaling]);
@@ -30,8 +31,8 @@ else
   fprintf("signaling file already exists.\n");
 end
 
-outFileChipsPilotAndPayloadReal = 'chipsChipsPilotAndPayloadReal.hex';
-outFileChipsPilotAndPayloadImag = 'chipsChipsPilotAndPayloadImag.hex';
+outFileChipsPilotAndPayloadReal = [outPathHexFiles, 'chipsChipsPilotAndPayloadReal.hex'];
+outFileChipsPilotAndPayloadImag = [outPathHexFiles, 'chipsChipsPilotAndPayloadImag.hex'];
 
 if min([fct_checkFileExistence(outFileChipsPilotAndPayloadReal), fct_checkFileExistence(outFileChipsPilotAndPayloadImag)]) < 0
   pilotAndPayload = csvread([icasDataPath, chipsPilotAndPayload]);
@@ -50,10 +51,12 @@ bitWidthRrc = 8;
 rollOff     = 0.3;
 it          = 0;
 
+outPathRrc = '/home/markus/Arbeit/2024-09-24_rrcFilter/';
+
 while it < length(nOs(1,:))
   it = it + 1;
   rrcFilter = rcosine(1, nOs(1,it), 'fir/sqrt', rollOff, 3);
   rrcFilter = round(fct_normMatrix(rrcFilter) .* (2^(bitWidthRrc - 1) - 1));
-  csvwrite(['rrcFilterNos', num2str(nOs(1,it), "%02d"), '.csv'], rrcFilter);
-  fct_uint2hexFile(fct_int2complementOnTwo(rrcFilter', bitWidthRrc), bitWidthRrc, ['rrcFilterNos', num2str(nOs(1,it), "%02d"), '.hex'])
+  csvwrite([outPathRrc, 'rrcFilterNos', num2str(nOs(1,it), "%02d"), '.csv'], rrcFilter);
+  fct_uint2hexFile(fct_int2complementOnTwo(rrcFilter', bitWidthRrc), bitWidthRrc, [outPathRrc, 'rrcFilterNos', num2str(nOs(1,it), "%02d"), '.hex'])
 end

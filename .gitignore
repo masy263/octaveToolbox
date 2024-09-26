@@ -1,6 +1,7 @@
 *.asv
 *.bits
 *.cplx
+*.mat
 *.out
 *.hex
 *.csv
