@@ -17,7 +17,7 @@ function b = fct_complementOnTwo2int(a, bitWidth)
   
   while it < (bitWidth - 1);
     b = b + mod(a,2) .* 2^it;
-    a = (a - mod(a,2)) / 2;
+    a = (a - mod(a,2)) ./ 2;
     it = it + 1;
   end
   

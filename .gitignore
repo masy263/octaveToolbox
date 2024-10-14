@@ -1,8 +1,10 @@
 *.asv
+*.bin
 *.bits
 *.cplx
 *.mat
 *.out
 *.hex
 *.csv
+octave-workspace
 tcInp*

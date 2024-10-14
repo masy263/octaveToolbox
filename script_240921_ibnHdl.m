@@ -1,13 +1,15 @@
-inpPath = '/home/markus/Arbeit/ibnHdl/adrv/data240919/hexInp/';
-outPath = '/home/markus/Arbeit/ibnHdl/adrv/data240919/csvOut/';
+inpPath = '/home/markus/Arbeit/ibnHdl/adrv/data241002/hexInp/';
+outPath = '/home/markus/Arbeit/ibnHdl/adrv/data241002/csvOut/';
+
+showPolyphasePlots  = 1;
 
 outFileCplxAppendix = '_cplx.csv';
 outFilePolyAppendix = '_poly.csv';
 outFileByteAppendix = '_byte.csv';
 outFileDeciAppendix = '_deci.csv';
 
-idxStart               = 0;
-idxEnd                 = 9;
+idxStart               = 14;
+idxEnd                 = 15;
 constellationBitTupels = [0, 0; 0, 1; 1, 1; 1, 0];
 phase0                 = [0, 90, 180, 270];
 validDataSets          = [];
@@ -34,13 +36,16 @@ while nrDataSet < idxEnd + 1
     fprintf("[script_240921_ibnHdl] INFO %s was created...\n", outFileCplx);
   end
 
-  polyphase = fct_parseSignal(signalCplx, 15, 0);
+  polyphase = fct_parseSignal(signalCplx, 15, showPolyphasePlots);
   outFilePoly = [outPath, fileName, outFilePolyAppendix];
 
   if fct_checkFileExistence(outFilePoly) < 0
     csvwrite(outFilePoly, polyphase);
   end
 
+  if (showPolyphasePlots > 0)
+    input("next?");
+  end
 
   nrPolyphase        = 0;
 

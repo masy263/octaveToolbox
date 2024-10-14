@@ -48,10 +48,10 @@ function distribution = fct_valueDistribution(A, plotFlag)
     close all;
 
     if(isCplx > 0)
-      figure; plot(distribution(4,:), distribution(3,:));
-      figure; plot(distribution(2,:), distribution(1,:));
+      figure; plot(distribution(4,:), distribution(3,:), 'o');
+      figure; plot(distribution(2,:), distribution(1,:), 'o');
     else
-      plot(distribution(2,:), distribution(1,:));
+      plot(distribution(2,:), distribution(1,:), '*');
     end
 
   end
