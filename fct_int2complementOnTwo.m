@@ -1,4 +1,4 @@
-function retvar = int2complementOnTwo(A, B)
+function retvar = fct_int2complementOnTwo(A, B)
 
   % A - Array of integer values
   % B - Bitwidth

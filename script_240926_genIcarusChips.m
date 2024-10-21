@@ -19,6 +19,8 @@
 
 close all; clear; clc;
 
+runPrmkMatlabModel = 0;
+
 path2prmkModel = '/home/markus/Git-Repos/icasLeo/icarus_simulator/';
 
 addpath(genpath(path2prmkModel));
@@ -32,17 +34,21 @@ addpath(genpath(path2prmkModel));
 
  %% +++ begin: running prmk matlab simulation +++ %%
 
-  SimScript_UL_SigGen;
+  if(runPrmkMatlabModel > 0)
+    SimScript_UL_SigGen;
+  end
 
-  ParSet.Sim.savepath              = '/home/markus/Git-Repos/octaveToolbox/outputData/'
+  ParSet.Sim.savepath              = '/home/markus/Git-Repos/octaveToolbox/outputData/';
   ParSet.Sim.fecUplinkMatrixPath   = [path2prmkModel, 'FEC/uplink/e_matrix.txt'];
   ParSet.Sim.fecDownlinkMatrixPath = [path2prmkModel, 'FEC/downlink/e_matrix.txt'];
   ParSet.Sim.filenumber            = 1; % darf nicht < 1 sein
-  ParSet                           = Init_Icarus_FEC(ParSet);
 
-  [ParSet, Data] = Init_Icarus_Signaling_UL(ParSet, Data);
-  [ParSet, Data] = gen_icarus_ul_payload_data(ParSet, Data);
-  [ParSet, Data] = gen_icarus_ul_signal_hdl_testbench(ParSet, Data);
+  if(runPrmkMatlabModel > 0)
+    ParSet         = Init_Icarus_FEC(ParSet);
+    [ParSet, Data] = Init_Icarus_Signaling_UL(ParSet, Data);
+    [ParSet, Data] = gen_icarus_ul_payload_data(ParSet, Data);
+    [ParSet, Data] = gen_icarus_ul_signal_hdl_testbench(ParSet, Data);
+  end
 
  %  +++++ end: running prmk matlab simulation +++ %%
 
@@ -50,10 +56,18 @@ addpath(genpath(path2prmkModel));
 
   load([ParSet.Sim.savepath, 'sig_field_payload_chips', num2str(ParSet.Sim.filenumber), '.mat']);
 
-  chipsPilotAndPayload = chips;
-  chipsSignaling       = chips_signaling;
-  chipsPreamble        = transpose(preamble_sync); %real(preamble_sync)' + imag(preamble_sync)' .* i;
-  icasDataPath         = '/home/markus/Arbeit/2024-09-24_icasChipsCsv/';
+  icasDataPath             = '/home/markus/Arbeit/2024-09-24_icasChipsCsv/';
+  chipsPilotAndPayload     = transpose(chips');
+  chipsPreamble            = transpose(preamble_sync);
+  noiseAtStart             = (floor(rand(2^16,1) * 7) - 3) + (floor(rand(2^16,1) * 7) - 3) * i;
+  chipsPreamble            = [noiseAtStart; chipsPreamble];
+  chipsSignaling           = transpose(chips_signaling');
+  nChipsPilotAndPayload    = length(chipsPilotAndPayload(:,1));
+  nChipsPreamble           = length(chipsPreamble(:,1));
+  nChipsSignaling          = length(chipsSignaling(:,1));
+  addrWidthPilotAndPayload = fct_determineBitWidth(nChipsPilotAndPayload);
+  addrWidthPreamble        = fct_determineBitWidth(nChipsPreamble);
+  addrWidthSignaling       = fct_determineBitWidth(nChipsSignaling);
 
  %  +++++ end: load icarus data +++ %%
 
@@ -75,3 +89,58 @@ addpath(genpath(path2prmkModel));
   % tx_filter_nos5
 
  %  +++++ end: handle further data +++ %%
+
+ %% +++ begin: echo data parameters +++ %%
+
+  fNameInfo = "info.txt";
+  fidInfo = fopen([icasDataPath, fNameInfo], "w");
+
+  if(fidInfo > 0)
+    fprintf(fidInfo, "[script_240926_genIcarusChips] info:\n");
+    fprintf(fidInfo, "====================================\n\n");
+    fprintf(fidInfo, " +++ begin: date of generation: +++\n\n ");
+    fprintf(fidInfo, " %s", date); fprintf(fidInfo, "\n\n");
+    fprintf(fidInfo, " +++++ end: date of generation: +++\n\n");
+    fprintf(fidInfo, " +++ begin: signaling bits: +++\n\n");
+    fprintf(fidInfo, "  binary:             ");
+    fprintf(fidInfo, "% d", signaling_bits); fprintf(fidInfo, "\n");
+    fprintf(fidInfo, "  binary_reverse:     ");
+    fprintf(fidInfo, "% d", signaling_bits(1,end:-1:1)); fprintf(fidInfo, "\n\n");
+    fprintf(fidInfo, "  decimal:            ");
+    fprintf(fidInfo, "% d", fct_bin2uint(signaling_bits)); fprintf(fidInfo, "\n");
+    fprintf(fidInfo, "  decimal_reverse:    ");
+    fprintf(fidInfo, "% d", fct_bin2uint(signaling_bits(1,end:-1:1))); fprintf(fidInfo, "\n\n");
+    fprintf(fidInfo, "  hexadecimal:         ");
+    fprintf(fidInfo, "%s", dec2hex(fct_bin2uint(signaling_bits))); fprintf(fidInfo, "\n");
+    fprintf(fidInfo, "  hexadecimal_reverse: ");
+    fprintf(fidInfo, "%s", dec2hex(fct_bin2uint(signaling_bits(1,end:-1:1)))); fprintf(fidInfo, "\n\n");
+    fprintf(fidInfo, " +++++ end: signaling bits: +++\n\n");
+    fprintf(fidInfo, " +++ begin: spread code: +++\n\n");
+    spreadTxt = reshape([spreading_code, 0], [32, 32])';
+    idxSC     = 0;
+
+    while idxSC < 31
+      idxSC = idxSC + 1;
+      fprintf(fidInfo, " ");
+      fprintf(fidInfo, "%3d", spreadTxt(idxSC, :));
+      fprintf(fidInfo, "\n");
+    end
+
+    fprintf(fidInfo, " ");
+    fprintf(fidInfo, "%3d", spreadTxt(idxSC, 1:end-1));
+    fprintf(fidInfo, "\n\n");
+    fprintf(fidInfo, " +++++ end: spread code: +++\n\n");
+    fprintf(fidInfo, " +++ begin: chip set properties: +++\n\n");
+    fprintf(fidInfo, "                | amount of chips | address width\n");
+    fprintf(fidInfo, "  --------------+-----------------+---------------\n");
+    fprintf(fidInfo, "  pilot/payload | %15d | %13d\n", nChipsPilotAndPayload, addrWidthPilotAndPayload);
+    fprintf(fidInfo, "  sync preamble | %15d | %13d\n", nChipsPreamble, addrWidthPreamble);
+    fprintf(fidInfo, "      signaling | %15d | %13d\n\n", nChipsSignaling, addrWidthSignaling);
+    fprintf(fidInfo, " +++++ end: chip set properties: +++\n\n");
+    fclose(fidInfo);
+  else
+    fprintf("[script_240926_genIcarusChips] unable to generate %s\n", fNameInfo);
+  end
+
+ %  +++++ end: echo data parameters +++ %%
+

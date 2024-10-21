@@ -13,6 +13,11 @@ function b = fct_complementOnTwo2int(a, bitWidth)
   end
 
   bitWidth = it;
+
+  if bitWidth > 53
+    fprintf("[fct_complementOnTwo2int] WARNING bit widths >53 may lead to unexpected behavior...\n");
+  end
+
   it = 0;
   
   while it < (bitWidth - 1);

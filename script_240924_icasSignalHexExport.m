@@ -1,4 +1,5 @@
-icasDataPath         = '/home/markus/Arbeit/icasSignalUL/icasChipsUnshaped/';
+% icasDataPath         = '/home/markus/Arbeit/icasSignalUL/icasChipsUnshaped/';
+icasDataPath         = '/home/markus/Arbeit/2024-09-24_icasChipsCsv/';
 outPathHexFiles      = '/home/markus/Arbeit/2024-09-24_icasChipsHex/';
 chipsPilotAndPayload = 'chipsPilotAndPayload.csv';
 chipsSignaling       = 'chipsSignaling.csv';
@@ -11,13 +12,13 @@ chipsSyncPreamble    = 'preambleSync.csv';
   outFileChipsPreambleReal = [outPathHexFiles, 'chipsSyncPreambleReal.hex'];
   outFileChipsPreambleImag = [outPathHexFiles, 'chipsSyncPreambleImag.hex'];
   preamble                 = csvread([icasDataPath, chipsSyncPreamble]);
-  figure; plot(preamble)
+  % figure; plot(preamble)
   preamble                 = round(fct_normMatrix(preamble) .* (2^(bitWidthPreamble - 1) - 1));
   sum(preamble == (0 + 3 * i))
-  figure; plot(preamble)
+  % figure; plot(preamble)
   preamble                 = fct_int2complementOnTwo(real(preamble),  bitWidthPreamble) + fct_int2complementOnTwo(imag(preamble),  bitWidthPreamble) * i;
   sum(preamble == (0 + 3 * i))
-  figure; plot(preamble)
+  % figure; plot(preamble)
 
   if min([fct_checkFileExistence(outFileChipsPreambleReal), fct_checkFileExistence(outFileChipsPreambleImag)]) < 0
     fileSizeSyncReal = fct_uint2hexFile(real(preamble), bitWidthPreamble, outFileChipsPreambleReal);
@@ -60,25 +61,28 @@ chipsSyncPreamble    = 'preambleSync.csv';
     ppSizeByte = round(2 * lData / 8 + 0.5)
     fileSizePPReal = fct_uint2hexFile(ppRealGt0, 1, outFileChipsPilotAndPayloadReal)
     fileSizePPImag = fct_uint2hexFile(ppImagGt0, 1, outFileChipsPilotAndPayloadImag)
+    fprintf("Pilot and Pilot size: %d bits\n", lData);
+  else
+    fprintf("Pilot and Pilot file already exists.\n");
   end
 
 %  +++++ end: export sync preamble +++ %%
 
 %% +++ begin: generate and export rrc filters +++ %%
 
-nOs         = [2, 3, 5, 15, 30];
-bitWidthRrc = 8;
-rollOff     = 0.3;
-it          = 0;
+  % nOs         = [2:50];
+  % bitWidthRrc = 8;
+  % rollOff     = 0.3;
+  % it          = 0;
 
-outPathRrc = '/home/markus/Arbeit/2024-09-24_rrcFilter/';
+  % outPathRrc = '/home/markus/Arbeit/2024-09-24_rrcFilter/';
 
-while it < length(nOs(1,:))
-  it = it + 1;
-  rrcFilter = rcosine(1, nOs(1,it), 'fir/sqrt', rollOff, 3);
-  rrcFilter = round(fct_normMatrix(rrcFilter) .* (2^(bitWidthRrc - 1) - 1));
-  csvwrite([outPathRrc, 'rrcFilterNos', num2str(nOs(1,it), "%02d"), '.csv'], rrcFilter);
-  fct_uint2hexFile(fct_int2complementOnTwo(rrcFilter', bitWidthRrc), bitWidthRrc, [outPathRrc, 'rrcFilterNos', num2str(nOs(1,it), "%02d"), '.hex'])
-end
+  % while it < length(nOs(1,:))
+  %   it = it + 1;
+  %   rrcFilter = rcosine(1, nOs(1,it), 'fir/sqrt', rollOff, 3);
+  %   rrcFilter = round(fct_normMatrix(rrcFilter) .* (2^(bitWidthRrc - 1) - 1));
+  %   csvwrite([outPathRrc, 'rrcFilterNos', num2str(nOs(1,it), "%02d"), '.csv'], rrcFilter);
+  %   fct_uint2hexFile(fct_int2complementOnTwo(rrcFilter', bitWidthRrc), bitWidthRrc, [outPathRrc, 'rrcFilterNos', num2str(nOs(1,it), "%02d"), '.hex'])
+  % end
 
 %  +++++ end: generate and export rrc filters +++ %%
