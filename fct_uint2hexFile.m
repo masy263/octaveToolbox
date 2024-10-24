@@ -1,10 +1,9 @@
-function retvar = fct_uint2hexFile(inpVal, bitWidth, fName)
+function retvar = fct_uint2hexFile(inpVal, bitWidth, fName, fileHandle)
 
   keepGoing = 0;
   lenDat    = prod(size(inpVal));
   retvar    = -1;
   sep       = 32;
-
 
   if min(inpVal) < 0
     fprintf("[uint2hexFile] WARNING: data contains negative values!\n");
@@ -51,7 +50,11 @@ function retvar = fct_uint2hexFile(inpVal, bitWidth, fName)
   retvar(:,end) = char(10);
   retvar = char(fct_flattenMatrix(double(retvar)));
 
-  fid = fopen(fName, "w");
+  if nargin > 3
+    fid = fopen(fName, fileHandle);
+  else
+    fid = fopen(fName, "w");
+  end
   fprintf(fid, "%s", retvar);
   fclose(fid);
 

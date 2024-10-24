@@ -6,11 +6,11 @@
 %        -ParSet.Sig.UL_Modulation.Symbols = modul_qpsk(ParSet);          %
 %        +ParSet                           = modul_qpsk(ParSet);          %
 %                                                                         %
-% 2) icarus_simulator/DSP/Init_Icarus_Signaling_UL.m:                     %
+% 2) icarus_simulator/FEC/Init_Icarus_FEC.m:                              %
 %        -m = load ('FEC\uplink\e_matrix.txt');                           %
 %        +m = load (ParSet.Sim.fecUplinkMatrixPath);                      %
 %        -m = load ('FEC\downlink\e_matrix.txt');                         %
-%        +m = load (ParSet.Sim.fecUplinkMatrixPath);                      %
+%        +m = load (ParSet.Sim.fecDownlinkMatrixPath);                      %
 %                                                                         %
 % 2) icarus_simulator/SimScripts/SimScript_UL_SigGen.m:                   %
 %        +ParSet.Sim.fecUplinkMatrixPath   = 'FEC\uplink\e_matrix.txt';   %
@@ -19,7 +19,7 @@
 
 close all; clear; clc;
 
-runPrmkMatlabModel = 0;
+runPrmkMatlabModel = 1;
 
 path2prmkModel = '/home/markus/Git-Repos/icasLeo/icarus_simulator/';
 
@@ -92,8 +92,8 @@ addpath(genpath(path2prmkModel));
 
  %% +++ begin: echo data parameters +++ %%
 
-  fNameInfo = "info.txt";
-  fidInfo = fopen([icasDataPath, fNameInfo], "w");
+  fNameInfo = 'info.txt';
+  fidInfo = fopen([icasDataPath, fNameInfo], 'w');
 
   if(fidInfo > 0)
     fprintf(fidInfo, "[script_240926_genIcarusChips] info:\n");
