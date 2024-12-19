@@ -19,7 +19,7 @@
 
 close all; clear; clc;
 
-runPrmkMatlabModel = 1;
+runPrmkMatlabModel = 0;
 
 path2prmkModel = '/home/markus/Git-Repos/icasLeo/icarus_simulator/';
 
@@ -59,6 +59,7 @@ addpath(genpath(path2prmkModel));
   icasDataPath             = '/home/markus/Arbeit/2024-09-24_icasChipsCsv/';
   chipsPilotAndPayload     = transpose(chips');
   chipsPreamble            = transpose(preamble_sync);
+  chipsPreamble            = chipsPreamble * 3;
   noiseAtStart             = (floor(rand(2^16,1) * 7) - 3) + (floor(rand(2^16,1) * 7) - 3) * i;
   chipsPreamble            = [noiseAtStart; chipsPreamble];
   chipsSignaling           = transpose(chips_signaling');

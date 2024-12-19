@@ -5,6 +5,7 @@ chipsPilotAndPayload = 'chipsPilotAndPayload.csv';
 chipsSignaling       = 'chipsSignaling.csv';
 % chipsComplete        = 'icasFullSampleVector.csv';
 chipsSyncPreamble    = 'preambleSync.csv';
+forcePreambleExport  = 1;
 
 %% +++ begin: export sync preamble +++ %%
 
@@ -13,14 +14,31 @@ chipsSyncPreamble    = 'preambleSync.csv';
   outFileChipsPreambleImag = [outPathHexFiles, 'chipsSyncPreambleImag.hex'];
   preamble                 = csvread([icasDataPath, chipsSyncPreamble]);
   % figure; plot(preamble)
-  preamble                 = round(fct_normMatrix(preamble) .* (2^(bitWidthPreamble - 1) - 1));
+  preamble                 = round(preamble);
+  %preamble                 = round(fct_normMatrix(preamble) .* (2^(bitWidthPreamble - 1) - 1));
   sum(preamble == (0 + 3 * i))
   % figure; plot(preamble)
+  max(abs(real(preamble)))
   preamble                 = fct_int2complementOnTwo(real(preamble),  bitWidthPreamble) + fct_int2complementOnTwo(imag(preamble),  bitWidthPreamble) * i;
   sum(preamble == (0 + 3 * i))
+  sum(preamble == (3 + 0 * i))
   % figure; plot(preamble)
 
-  if min([fct_checkFileExistence(outFileChipsPreambleReal), fct_checkFileExistence(outFileChipsPreambleImag)]) < 0
+  exportPreamble = -1;
+
+  if fct_checkFileExistence(outFileChipsPreambleReal) < 0
+    exportPreamble = 1;
+  end
+
+  if fct_checkFileExistence(outFileChipsPreambleImag) < 0
+    exportPreamble = 1;
+  end
+
+  if forcePreambleExport > 0
+    exportPreamble = 1;
+  end
+
+  if exportPreamble > 0
     fileSizeSyncReal = fct_uint2hexFile(real(preamble), bitWidthPreamble, outFileChipsPreambleReal);
     fileSizeSyncImag = fct_uint2hexFile(imag(preamble), bitWidthPreamble, outFileChipsPreambleImag);
     fprintf("Preamble size: %d bits\n", length(preamble(:,1)) * 2 * bitWidthPreamble);
