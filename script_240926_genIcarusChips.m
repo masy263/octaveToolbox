@@ -38,7 +38,8 @@ addpath(genpath(path2prmkModel));
     SimScript_UL_SigGen;
   end
 
-  ParSet.Sim.savepath              = '/home/markus/Git-Repos/octaveToolbox/outputData/';
+  % ParSet.Sim.savepath              = '/home/markus/Git-Repos/octaveToolbox/outputData/';
+  ParSet.Sim.savepath              = '/home/markus/Arbeit/2025-01-09_simDaten/';
   ParSet.Sim.fecUplinkMatrixPath   = [path2prmkModel, 'FEC/uplink/e_matrix.txt'];
   ParSet.Sim.fecDownlinkMatrixPath = [path2prmkModel, 'FEC/downlink/e_matrix.txt'];
   ParSet.Sim.filenumber            = 1; % darf nicht < 1 sein
@@ -57,10 +58,14 @@ addpath(genpath(path2prmkModel));
   load([ParSet.Sim.savepath, 'sig_field_payload_chips', num2str(ParSet.Sim.filenumber), '.mat']);
 
   icasDataPath             = '/home/markus/Arbeit/2024-09-24_icasChipsCsv/';
-  chipsPilotAndPayload     = transpose(chips');
+  noiseAtEnd               = (2 * round(rand(2^16,1)) - 1) * 0.7071 + (2 * round(rand(2^16,1)) - 1) * 0.7071 * i;
+  noiseAtStart             = (floor(rand(2^16,1) * 7) - 3) + (floor(rand(2^16,1) * 7) - 3) * i;
+  % chipsPilotAndPayload     = transpose(chips');
+  chipsPilotAndPayload     = chips;
+  chipsPilotAndPayload(1:10, 1)
+  chipsPilotAndPayload     = [chipsPilotAndPayload; noiseAtEnd];
   chipsPreamble            = transpose(preamble_sync);
   chipsPreamble            = chipsPreamble * 3;
-  noiseAtStart             = (floor(rand(2^16,1) * 7) - 3) + (floor(rand(2^16,1) * 7) - 3) * i;
   chipsPreamble            = [noiseAtStart; chipsPreamble];
   chipsSignaling           = transpose(chips_signaling');
   nChipsPilotAndPayload    = length(chipsPilotAndPayload(:,1));

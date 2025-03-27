@@ -13,15 +13,18 @@ forcePreambleExport  = 1;
   outFileChipsPreambleReal = [outPathHexFiles, 'chipsSyncPreambleReal.hex'];
   outFileChipsPreambleImag = [outPathHexFiles, 'chipsSyncPreambleImag.hex'];
   preamble                 = csvread([icasDataPath, chipsSyncPreamble]);
-  % figure; plot(preamble)
+  %figure; plot(preamble)
   preamble                 = round(preamble);
   %preamble                 = round(fct_normMatrix(preamble) .* (2^(bitWidthPreamble - 1) - 1));
   sum(preamble == (0 + 3 * i))
-  % figure; plot(preamble)
+  %figure; plot(preamble)
   max(abs(real(preamble)))
+  %figure; hist(real(preamble))
+  %figure; hist(imag(preamble))
   preamble                 = fct_int2complementOnTwo(real(preamble),  bitWidthPreamble) + fct_int2complementOnTwo(imag(preamble),  bitWidthPreamble) * i;
   sum(preamble == (0 + 3 * i))
   sum(preamble == (3 + 0 * i))
+
   % figure; plot(preamble)
 
   exportPreamble = -1;
